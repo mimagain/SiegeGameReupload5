@@ -1,0 +1,54 @@
+world:
+  worldname: 'world'
+  world-display-name: 'Siege of Al Quds'
+  super-items: []
+  defaultspawn:
+    x: 3971
+    y: 63
+    z: -3781
+  worldborder:
+    x1: 3906
+    y1: 100000
+    z1: -3662
+    x2: 4094
+    y2: -64
+    z2: -3890
+  teams:
+    american_union:
+      name: 'American Union'
+      color: '#694200'
+      safe-spawn:
+        x: 3999
+        y: 63
+        z: -3825
+        yaw: 0
+        pitch: 0
+      spawn-area:
+        x1: 4001
+        y1: 62
+        z1: -3825
+        x2: 3998
+        y2: 65
+        z2: -3828
+      territory:
+        - "3984, -3809, 4033, -3833"
+    volarys:
+      name: 'Volarys'
+      color: '#420699'
+      safe-spawn:
+        x: 4008
+        y: 63
+        z: -3731
+        yaw: -180
+        pitch: 0
+      spawn-area:
+        x1: 4006
+        y1: 62
+        z1: -3733
+        x2: 4010
+        y2: 66
+        z2: -3729
+      territory:
+        - "4000, -3760, 4015, -3725"
+        - "4015, -3725, 4047, -3744"
+        - "4015, -3725, 3984, -3744"

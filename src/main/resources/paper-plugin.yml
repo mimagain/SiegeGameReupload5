@@ -1,0 +1,29 @@
+name: SiegeGame
+version: '${project.version}'
+main: me.cedric.siegegame.SiegeGamePlugin
+api-version: '1.21.4'
+
+commands:
+  stats:
+    description: View player statistics
+    usage: /<command> [player|top|help]
+    permission: siegegame.stats
+    permission-message: You don't have permission to use this command.
+
+dependencies:
+  server:
+    PlaceholderAPI:
+      load: BEFORE
+      required: false
+    NBTAPI:
+      load: BEFORE
+      required: true
+    ProtocolLib:
+      load: BEFORE
+      required: true
+    Apollo-Bukkit:
+      load: BEFORE
+      required: true
+    CombatLogX:
+      load: BEFORE
+      required: true
