@@ -2,8 +2,11 @@ package me.cedric.siegegame;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.github.sirblobman.combatlogx.api.ICombatLogX;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import me.cedric.siegegame.command.SpawnCommand;
@@ -71,9 +74,9 @@ public final class SiegeGamePlugin extends JavaPlugin {
         persistenceManager.initialise();
         this.voteSkipManager = new VoteSkipManager(this);
 
-this.databaseManager = new DatabaseManager(this, new File(this.getDataFolder(), "playerstats.db"));       
+this.databaseManager = new DatabaseManager(this, new File(this.getDataFolder(), "playerstats.db"));
  this.databaseManager.establishConnection();
-        this.databaseManager.createTable(); 
+        this.databaseManager.createTable();
         this.gameManager = new GameManager(this, persistenceManager.getKitController());
         this.configLoader = new ConfigLoader(this);
         this.matchStatsCommandExecutor = new MatchStatsCommandExecutor(this);
@@ -95,7 +98,7 @@ this.databaseManager = new DatabaseManager(this, new File(this.getDataFolder(), 
         configLoader.initialiseAndLoad();
 
         if (getGameConfig().getStartGameOnServerStartup())
-            Bukkit.getScheduler().runTaskLater(this, () -> getGameManager().startNextGame(), 1L);   
+            Bukkit.getScheduler().runTaskLater(this, () -> getGameManager().startNextGame(), 1L);
     }
 
     @Override
@@ -121,10 +124,26 @@ this.databaseManager = new DatabaseManager(this, new File(this.getDataFolder(), 
     }
     private void registerCommands() {
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> {
-            commands.registrar().register(Commands.literal("siegegame")
-                    .then(Commands.literal("start").executes(new StartGameArg(this)))
-                    .then(Commands.literal("reload").executes(new ReloadArg(this)))
-                    .build());
+            commands.registrar().register(
+                    Commands.literal("siegegame")
+                            .then(Commands.literal("start")
+                                    .executes(new StartGameArg(this))
+                                    .then(Commands.argument("map", StringArgumentType.word())
+                                            .suggests((context, builder) -> {
+                                                for (String id : getGameConfig().getMapIDs()) {
+                                                    if (id.toLowerCase().startsWith(builder.getRemainingLowerCase())) {
+                                                        builder.suggest(id);
+                                                    }
+                                                }
+                                                return builder.buildFuture();
+                                            })
+                                            .executes(new StartGameArg(this))
+                                    )
+                            )
+                            .then(Commands.literal("reload")
+                                    .executes(new ReloadArg(this))
+                            ).build()
+            );
             commands.registrar().register(Commands.literal("kit")
                     .requires(source -> source.getSender() instanceof Player &&
                             source.getSender().hasPermission(Permissions.KITS.getPermission()))
@@ -148,8 +167,7 @@ this.databaseManager = new DatabaseManager(this, new File(this.getDataFolder(), 
                                     .executes(new DeleteKitArgument(this))
                             )
                     )
-                    .then(Commands.literal("load").executes(new KitLoadArgument(this)))
-                    .build());
+                    .then(Commands.literal("load").executes(new KitLoadArgument(this)).then(Commands.literal("default").executes((Command)new KitLoadArgument(this, true)))).build());
             commands.registrar().register(Commands.literal("amplifier")
                     .then(Commands.literal("stop").executes(new AmplifierStopCommand(this)))
                     .then(AmplifierStartCommand.createCommand(this))
@@ -158,7 +176,7 @@ this.databaseManager = new DatabaseManager(this, new File(this.getDataFolder(), 
             commands.registrar().register(Commands.literal("resources").executes(new ResourcesCommand(this)).build());
             commands.registrar().register(Commands.literal("rally").executes(new RallyCommand(this)).build());
             commands.registrar().register(Commands.literal("switch")
-                    .requires(source -> source.getSender() instanceof Player) 
+                    .requires(source -> source.getSender() instanceof Player)
                     .executes(new SwitchCommand(this))
                     .build());
             commands.registrar().register(Commands.literal("t")
@@ -212,12 +230,12 @@ this.databaseManager = new DatabaseManager(this, new File(this.getDataFolder(), 
          commands.registrar().register(Commands.literal("stats")
 
                     .requires(source -> source.getSender().hasPermission("siegegame.stats"))
-                    .executes(new StatsCommandExecutor(this)) 
-                    .then(Commands.argument("player", StringArgumentType.word()) 
+                    .executes(new StatsCommandExecutor(this))
+                    .then(Commands.argument("player", StringArgumentType.word())
                             .executes(new StatsCommandExecutor(this)))
                     .then(Commands.literal("hide")
                             .requires(source -> source.getSender().hasPermission("siegegame.stats.hide"))
-                            .executes(new StatsHideCommand(this))) 
+                            .executes(new StatsHideCommand(this)))
                     .then(Commands.literal("modify")
                             .requires(source -> source.getSender().hasPermission("siegegame.stats.modify"))
                             .then(Commands.argument("action", StringArgumentType.word())
@@ -236,10 +254,10 @@ this.databaseManager = new DatabaseManager(this, new File(this.getDataFolder(), 
                                                     })
                                                     .then(Commands.argument("value", DoubleArgumentType.doubleArg())
                                                             .executes(new StatsModifyCommandExecutor(this)))))))
-                    .then(Commands.literal("top") 
+                    .then(Commands.literal("top")
                             .requires(source -> source.getSender().hasPermission("siegegame.stats.top"))
-                            .executes(new TopStatsCommandExecutor(this)) 
-                            .then(Commands.argument("stat", StringArgumentType.word()) 
+                            .executes(new TopStatsCommandExecutor(this))
+                            .then(Commands.argument("stat", StringArgumentType.word())
                                     .suggests((context, builder) -> {
                                         builder.suggest("kills");
                                         builder.suggest("deaths");

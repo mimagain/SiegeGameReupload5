@@ -61,7 +61,7 @@ public class RallyCommand implements Command<CommandSourceStack> {
         }
 
 
-        GamePlayer gamePlayer = worldGame.getPlayer(player.getUniqueId());
+            GamePlayer gamePlayer = worldGame.getPlayer(player.getUniqueId());
         if (gamePlayer == null) {
             player.sendMessage(ChatColor.RED + "Player data not found.");
             return 0;

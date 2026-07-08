@@ -7,6 +7,11 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.enums.Permissions;
 import me.cedric.siegegame.model.SiegeGameMatch;
+import me.cedric.siegegame.model.game.WorldGame;
+import me.cedric.siegegame.model.player.GamePlayer;
+import me.cedric.siegegame.model.teams.Team;
+import me.cedric.siegegame.model.teams.territory.Territory;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
@@ -32,10 +37,17 @@ public class ResourcesCommand implements Command<CommandSourceStack> {
 
         Player player = (Player) sender;
         SiegeGameMatch gameMatch = plugin.getGameManager().getCurrentMatch();
+        WorldGame worldGame = plugin.getGameManager().getCurrentMatch().getWorldGame();
+        GamePlayer gamePlayer = worldGame.getPlayer(player.getUniqueId());
 
+        Team currentTeam = gamePlayer.getTeam();
+        Territory territory = currentTeam.getTerritory();
         if (gameMatch == null)
             return 0;
-
+        if (!territory.isInside(player.getLocation())) {
+            player.sendMessage(ChatColor.RED + "You must be inside your team's claims to use /resources.");
+            return 0;
+        }
         gameMatch.getWorldGame().getShopGUI().getGUI().show(player);
         return 0;
     }
