@@ -23,8 +23,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                  <release>${java.version}</release>
                 </configuration>
             </plugin>
             <plugin>
@@ -107,6 +106,10 @@
             <id>papermc-repo</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
+        <repository>
+            <id>sirblobman-public</id>
+            <url>https://nexus.sirblobman.xyz/public/</url>
+        </repository>     
         <repository>
             <id>codemc-repo</id>
             <url>https://repo.codemc.io/repository/maven-public/</url>
@@ -193,7 +196,7 @@
         <dependency>
             <groupId>com.lunarclient</groupId>
             <artifactId>apollo-api</artifactId>
-            <version>1.1.6</version>
+            <version>1.2.7</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
